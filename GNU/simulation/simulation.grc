@@ -1,0 +1,523 @@
+options:
+  parameters:
+    author: ''
+    catch_exceptions: 'True'
+    category: '[GRC Hier Blocks]'
+    cmake_opt: ''
+    comment: ''
+    copyright: ''
+    description: ''
+    gen_cmake: 'On'
+    gen_linking: dynamic
+    generate_options: qt_gui
+    hier_block_src_path: '.:'
+    id: simulation
+    max_nouts: '0'
+    output_language: python
+    placement: (0,0)
+    qt_qss_theme: ''
+    realtime_scheduling: ''
+    run: 'True'
+    run_command: '{python} -u {filename}'
+    run_options: prompt
+    sizing_mode: fixed
+    thread_safe_setters: ''
+    title: Not titled yet
+    window_size: (1000,1000)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8, 8]
+    rotation: 0
+    state: enabled
+
+blocks:
+- name: samp_rate
+  id: variable
+  parameters:
+    comment: ''
+    value: '200000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [184, 16.0]
+    rotation: 0
+    state: enabled
+- name: variable_constellation_0_0
+  id: variable_constellation
+  parameters:
+    comment: ''
+    const_points: '[0.70710678+0.70710678j, -0.70710678+0.70710678j,-0.70710678-0.70710678j,0.70710678-0.70710678j]'
+    dims: '1'
+    normalization: digital.constellation.NO_NORMALIZATION
+    precision: '0'
+    rot_sym: '4'
+    soft_dec_lut: None
+    sym_map: '[0, 1,3,2]'
+    type: 8psk
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [288, 16.0]
+    rotation: 0
+    state: enabled
+- name: variable_constellation_0_0_0
+  id: variable_constellation
+  parameters:
+    comment: ''
+    const_points: '[0.70710678+0.70710678j, -0.70710678+0.70710678j,-0.70710678-0.70710678j,0.70710678-0.70710678j]'
+    dims: '1'
+    normalization: digital.constellation.NO_NORMALIZATION
+    precision: '0'
+    rot_sym: '4'
+    soft_dec_lut: None
+    sym_map: '[0, 1,3,2]'
+    type: calcdist
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [216, 624.0]
+    rotation: 0
+    state: enabled
+- name: analog_random_source_x_0
+  id: analog_random_source_x
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    max: '64'
+    maxoutbuf: '0'
+    min: '0'
+    minoutbuf: '0'
+    num_samps: 4096*4
+    repeat: 'False'
+    type: byte
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [56, 248.0]
+    rotation: 0
+    state: enabled
+- name: blocks_throttle2_0
+  id: blocks_throttle2
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    ignoretag: 'True'
+    limit: auto
+    maximum: '0.1'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samples_per_second: samp_rate
+    type: complex
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [528, 472.0]
+    rotation: 180
+    state: true
+- name: channels_dynamic_channel_model_0
+  id: channels_dynamic_channel_model
+  parameters:
+    K: '4'
+    LOS: 'True'
+    N: '8'
+    affinity: ''
+    alias: ''
+    cfo_maxdev: '500'
+    cfo_stdev: '0.01'
+    comment: ''
+    delays: '[0.0, 0.9, 1.7]'
+    fD: '1'
+    mags: '[1, 0.8, 0.3]'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    noise_amp: '0.001'
+    ntaps: '8'
+    samp_rate: '200000'
+    seed: '0x1337 '
+    sro_maxdev: '50'
+    sro_stdev: '0.001'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [480, 160.0]
+    rotation: 0
+    state: enabled
+- name: digital_constellation_modulator_0
+  id: digital_constellation_modulator
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    constellation: variable_constellation_0_0
+    differential: 'True'
+    excess_bw: '0.35'
+    log: 'True'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samples_per_symbol: '8'
+    truncate: 'False'
+    verbose: 'True'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [240, 232.0]
+    rotation: 0
+    state: enabled
+- name: epy_block_1
+  id: epy_block
+  parameters:
+    _source_code: "import numpy as np\nfrom gnuradio import gr\nimport pickle\nimport\
+      \ sys\nimport os\nos.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'\nimport tensorflow\
+      \ as tf\nfrom tensorflow import keras\nfrom keras import metrics, regularizers,\
+      \ backend\nfrom keras.models import Model\nfrom tensorflow.keras.models import\
+      \ Sequential, load_model\nfrom keras.layers import Input, Dense\nfrom keras.callbacks\
+      \ import EarlyStopping, ModelCheckpoint\nfrom keras import optimizers\nfrom\
+      \ keras.layers import Dense, Dropout, Activation\nfrom keras.layers import Embedding\n\
+      from keras.utils import to_categorical\nfrom keras.layers import Conv1D,MaxPooling1D,\
+      \ Flatten,AveragePooling1D,Reshape,concatenate\nfrom keras.layers import Conv2D,\
+      \ GlobalMaxPooling1D ,MaxPooling2D\nfrom keras.constraints import unit_norm\n\
+      from tensorflow.keras.layers import Concatenate\nfrom keras.models import load_model\n\
+      from tensorflow.keras.layers import Input,GRU, Conv2D, Dense,Add,Subtract, Dropout,Multiply,\
+      \ BatchNormalization, Activation,Lambda, Flatten, Reshape, MaxPooling2D, concatenate\n\
+      \nsys.stdout.reconfigure(encoding='utf-8')\n\n\n# Your code here\n\nclass blk(gr.sync_block):\
+      \  # other base classes are basic_block, decim_block, interp_block\n    \"\"\
+      \"Embedded Python Block example - a simple multiply const\"\"\"\n\n\n    def\
+      \ __init__(self, example_param=1):  # only default arguments here\n        \"\
+      \"\"arguments to this function show up as parameters in GRC\"\"\"\n        gr.sync_block.__init__(\n\
+      \            self,\n            name='MMM',   # will show up in GRC\n      \
+      \      in_sig=[np.complex64],  # Two input signals\n            out_sig=[np.float32]\n\
+      \        )\n\n    def work(self, input_items, output_items):\n        # Extract\
+      \ the first 128 elements from each input\n        psd1 = np.array(input_items)\n\
+      \        #np.savetxt('C:/Users/asus/Downloads/m1_BPSK.txt', psd1.reshape(-1),\
+      \ delimiter=',')\n        print(len(np.transpose(psd1)))\n\n        input_chunks\
+      \ = psd1.reshape(-1, 128)  # Now input_chunks has shape (16, 128)\n\n      \
+      \  m1_list = []\n        m2_list = []\n\n        for chunk in input_chunks:\n\
+      \            energy = np.sum(np.abs(chunk))\n            normalized_chunk =\
+      \ chunk / energy\n\n            m1 = np.real(normalized_chunk)\n           \
+      \ m2 = np.imag(normalized_chunk)\n\n            m1_list.append(m1)\n       \
+      \     m2_list.append(m2)\n\n# Convert lists to numpy arrays\n        m1_array\
+      \ = np.array(m1_list)  # Shape will be (16, 128)\n        m2_array = np.array(m2_list)\
+      \  # Shape will be (16, 128)\n\n        print(\"Shape of m1_array:\", m1_array.shape)\n\
+      \        print(\"Shape of m2_array:\", m2_array.shape)\n\n        # Debugging\
+      \ prints (if needed)\n        try:\n            print(m1)\n        except UnicodeEncodeError\
+      \ as e:\n            print(f\"Encoding error in print: {e}\")\n        try:\n\
+      \            print(m2)\n        except UnicodeEncodeError as e:\n          \
+      \  print(f\"Encoding error in print: {e}\")\n\n        m = np.stack((m1_array,\
+      \ m2_array), axis=-1)\n\n# Expand dimensions of m to add a new axis at the end\n\
+      \        m_expanded = np.expand_dims(m, axis=3)\n\n# m_expanded will now have\
+      \ shape (16, 128, 2, 1)\n        print(\"Shape of m_expanded:\", m_expanded.shape)\n\
+      \n        # Predict with the model\n        file_path = 'C:/Users/asus/Downloads/mydata12.pkl'\n\
+      \n# Save the arrays in a .pkl file\n        with open(file_path, 'wb') as file:\n\
+      \            pickle.dump((m_expanded, m1_array, m2_array), file)\n\n       \
+      \ return output_items[0]\n"
+    affinity: ''
+    alias: ''
+    comment: ''
+    example_param: '1'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    _io_cache: ('MMM', 'blk', [('example_param', '1')], [('0', 'complex', 1)], [('0',
+      'float', 1)], 'Embedded Python Block example - a simple multiply const', [])
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [360, 480.0]
+    rotation: 180
+    state: true
+- name: qtgui_const_sink_x_0
+  id: qtgui_const_sink_x
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha1: '1.0'
+    alpha10: '1.0'
+    alpha2: '1.0'
+    alpha3: '1.0'
+    alpha4: '1.0'
+    alpha5: '1.0'
+    alpha6: '1.0'
+    alpha7: '1.0'
+    alpha8: '1.0'
+    alpha9: '1.0'
+    autoscale: 'True'
+    axislabels: 'True'
+    color1: '"blue"'
+    color10: '"red"'
+    color2: '"red"'
+    color3: '"green"'
+    color4: '"black"'
+    color5: '"cyan"'
+    color6: '"magenta"'
+    color7: '"yellow"'
+    color8: '"dark red"'
+    color9: '"dark green"'
+    comment: ''
+    grid: 'True'
+    gui_hint: ''
+    label1: ''
+    label10: ''
+    label2: ''
+    label3: ''
+    label4: ''
+    label5: ''
+    label6: ''
+    label7: ''
+    label8: ''
+    label9: ''
+    legend: 'True'
+    marker1: '0'
+    marker10: '0'
+    marker2: '0'
+    marker3: '0'
+    marker4: '0'
+    marker5: '0'
+    marker6: '0'
+    marker7: '0'
+    marker8: '0'
+    marker9: '0'
+    name: '""'
+    nconnections: '1'
+    size: '1024'
+    style1: '0'
+    style10: '0'
+    style2: '0'
+    style3: '0'
+    style4: '0'
+    style5: '0'
+    style6: '0'
+    style7: '0'
+    style8: '0'
+    style9: '0'
+    tr_chan: '0'
+    tr_level: '0.0'
+    tr_mode: qtgui.TRIG_MODE_FREE
+    tr_slope: qtgui.TRIG_SLOPE_POS
+    tr_tag: '""'
+    type: complex
+    update_time: '0.10'
+    width1: '1'
+    width10: '1'
+    width2: '1'
+    width3: '1'
+    width4: '1'
+    width5: '1'
+    width6: '1'
+    width7: '1'
+    width8: '1'
+    width9: '1'
+    xmax: '2'
+    xmin: '-2'
+    ymax: '2'
+    ymin: '-2'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [480, 48.0]
+    rotation: 0
+    state: enabled
+- name: qtgui_const_sink_x_0_0
+  id: qtgui_const_sink_x
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha1: '1.0'
+    alpha10: '1.0'
+    alpha2: '1.0'
+    alpha3: '1.0'
+    alpha4: '1.0'
+    alpha5: '1.0'
+    alpha6: '1.0'
+    alpha7: '1.0'
+    alpha8: '1.0'
+    alpha9: '1.0'
+    autoscale: 'True'
+    axislabels: 'True'
+    color1: '"blue"'
+    color10: '"red"'
+    color2: '"red"'
+    color3: '"green"'
+    color4: '"black"'
+    color5: '"cyan"'
+    color6: '"magenta"'
+    color7: '"yellow"'
+    color8: '"dark red"'
+    color9: '"dark green"'
+    comment: ''
+    grid: 'True'
+    gui_hint: ''
+    label1: ''
+    label10: ''
+    label2: ''
+    label3: ''
+    label4: ''
+    label5: ''
+    label6: ''
+    label7: ''
+    label8: ''
+    label9: ''
+    legend: 'True'
+    marker1: '0'
+    marker10: '0'
+    marker2: '0'
+    marker3: '0'
+    marker4: '0'
+    marker5: '0'
+    marker6: '0'
+    marker7: '0'
+    marker8: '0'
+    marker9: '0'
+    name: '""'
+    nconnections: '1'
+    size: '1024'
+    style1: '0'
+    style10: '0'
+    style2: '0'
+    style3: '0'
+    style4: '0'
+    style5: '0'
+    style6: '0'
+    style7: '0'
+    style8: '0'
+    style9: '0'
+    tr_chan: '0'
+    tr_level: '0.0'
+    tr_mode: qtgui.TRIG_MODE_FREE
+    tr_slope: qtgui.TRIG_SLOPE_POS
+    tr_tag: '""'
+    type: complex
+    update_time: '0.10'
+    width1: '1'
+    width10: '1'
+    width2: '1'
+    width3: '1'
+    width4: '1'
+    width5: '1'
+    width6: '1'
+    width7: '1'
+    width8: '1'
+    width9: '1'
+    xmax: '2'
+    xmin: '-2'
+    ymax: '2'
+    ymin: '-2'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [576, 576.0]
+    rotation: 0
+    state: enabled
+- name: qtgui_histogram_sink_x_0
+  id: qtgui_histogram_sink_x
+  parameters:
+    accum: 'False'
+    affinity: ''
+    alias: ''
+    alpha1: '1.0'
+    alpha10: '1.0'
+    alpha2: '1.0'
+    alpha3: '1.0'
+    alpha4: '1.0'
+    alpha5: '1.0'
+    alpha6: '1.0'
+    alpha7: '1.0'
+    alpha8: '1.0'
+    alpha9: '1.0'
+    autoscale: 'True'
+    axislabels: 'True'
+    bins: '100'
+    color1: '"blue"'
+    color10: '"dark blue"'
+    color2: '"red"'
+    color3: '"green"'
+    color4: '"black"'
+    color5: '"cyan"'
+    color6: '"magenta"'
+    color7: '"yellow"'
+    color8: '"dark red"'
+    color9: '"dark green"'
+    comment: ''
+    grid: 'False'
+    gui_hint: ''
+    label1: ''
+    label10: ''
+    label2: ''
+    label3: ''
+    label4: ''
+    label5: ''
+    label6: ''
+    label7: ''
+    label8: ''
+    label9: ''
+    legend: 'True'
+    marker1: '-1'
+    marker10: '-1'
+    marker2: '-1'
+    marker3: '-1'
+    marker4: '-1'
+    marker5: '-1'
+    marker6: '-1'
+    marker7: '-1'
+    marker8: '-1'
+    marker9: '-1'
+    name: '""'
+    nconnections: '1'
+    size: '100000'
+    style1: '1'
+    style10: '1'
+    style2: '1'
+    style3: '1'
+    style4: '1'
+    style5: '1'
+    style6: '1'
+    style7: '1'
+    style8: '1'
+    style9: '1'
+    type: float
+    update_time: '0.10'
+    width1: '1'
+    width10: '1'
+    width2: '1'
+    width3: '1'
+    width4: '1'
+    width5: '1'
+    width6: '1'
+    width7: '1'
+    width8: '1'
+    width9: '1'
+    xmax: '1'
+    xmin: '-1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [160, 440.0]
+    rotation: 180
+    state: true
+
+connections:
+- [analog_random_source_x_0, '0', digital_constellation_modulator_0, '0']
+- [blocks_throttle2_0, '0', epy_block_1, '0']
+- [blocks_throttle2_0, '0', qtgui_const_sink_x_0_0, '0']
+- [channels_dynamic_channel_model_0, '0', blocks_throttle2_0, '0']
+- [digital_constellation_modulator_0, '0', channels_dynamic_channel_model_0, '0']
+- [digital_constellation_modulator_0, '0', qtgui_const_sink_x_0, '0']
+- [epy_block_1, '0', qtgui_histogram_sink_x_0, '0']
+
+metadata:
+  file_format: 1
+  grc_version: 3.10.6.0
